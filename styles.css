@@ -1,0 +1,52 @@
+/* Main container styling */
+.main {
+    padding: 2rem;
+}
+
+/* Streamlit elements styling */
+.stButton>button {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.stTextInput>div>div>input {
+    padding: 0.5rem;
+}
+
+/* Table styling */
+.dataframe {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Success message styling */
+.stSuccess {
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+/* Error message styling */
+.stError {
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+/* Spinner styling */
+.stSpinner {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+/* Download button styling */
+.stDownloadButton>button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+}
+
+.stDownloadButton>button:hover {
+    background-color: #45a049;
+}
