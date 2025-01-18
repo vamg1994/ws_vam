@@ -119,57 +119,67 @@ def main():
                             st.warning("No URLs found on the webpage!")
                         else:
                             st.success(f"Found {len(urls_df)} URL(s)!")
-
-                            # Add filter options
-                            st.subheader("Filter URLs")
-                            col1, col2 = st.columns([2, 1])
-                            with col1:
-                                filter_text = st.text_input(
-                                    "Filter URLs containing:",
-                                    placeholder="Enter text to filter URLs...",
-                                    help="Filter URLs that contain specific text (case-insensitive)"
-                                )
-                            with col2:
-                                link_type = st.selectbox(
-                                    "Filter by type:",
-                                    options=["All"] + list(urls_df['type'].unique()),
-                                    help="Filter URLs by link type"
-                                )
-
-                            # Apply filters
-                            filtered_df = urls_df.copy()
-                            if filter_text:
-                                filtered_df = filtered_df[
-                                    filtered_df['url'].str.contains(filter_text, case=False, na=False) |
-                                    filtered_df['text'].str.contains(filter_text, case=False, na=False)
-                                ]
-                            if link_type != "All":
-                                filtered_df = filtered_df[filtered_df['type'] == link_type]
-
-                            st.markdown(f"**Showing {len(filtered_df)} filtered results**")
-
-                            # Display URLs table with additional columns
-                            st.dataframe(
-                                filtered_df,
-                                column_config={
-                                    "url": st.column_config.LinkColumn("URL"),
-                                    "text": "Link Text",
-                                    "type": "Link Type"
-                                },
-                                hide_index=True
-                            )
-
-                            # Download button for URLs
-                            csv = filtered_df.to_csv(index=False)
-                            st.download_button(
-                                label="Download URLs as CSV",
-                                data=csv,
-                                file_name=f"urls_{format_table_name(url, 0)}.csv",
-                                mime="text/csv"
-                            )
+                            # Store URLs in session state for filtering
+                            st.session_state.urls = urls_df
 
                     except Exception as e:
                         st.error(f"An error occurred while scraping URLs: {str(e)}")
+
+            # Show filters and URLs if we have URLs in session state
+            if hasattr(st.session_state, 'urls') and not st.session_state.urls.empty:
+                # Add filter options
+                st.subheader("Filter URLs")
+                col1, col2 = st.columns([2, 1])
+                with col1:
+                    filter_text = st.text_input(
+                        "Filter URLs containing:",
+                        placeholder="Enter text to filter URLs...",
+                        help="Filter URLs that contain specific text (case-insensitive)"
+                    )
+                with col2:
+                    link_type = st.selectbox(
+                        "Filter by type:",
+                        options=["All"] + sorted(st.session_state.urls['type'].unique().tolist()),
+                        help="Filter URLs by link type"
+                    )
+
+                # Apply filters
+                filtered_df = st.session_state.urls.copy()
+                
+                # Text filter
+                if filter_text:
+                    mask = (
+                        filtered_df['url'].str.contains(filter_text, case=False, na=False) |
+                        filtered_df['text'].str.contains(filter_text, case=False, na=False)
+                    )
+                    filtered_df = filtered_df[mask]
+                
+                # Type filter
+                if link_type != "All":
+                    filtered_df = filtered_df[filtered_df['type'] == link_type]
+
+                st.markdown(f"**Showing {len(filtered_df)} filtered results**")
+
+                # Display URLs table with additional columns
+                st.dataframe(
+                    filtered_df,
+                    column_config={
+                        "url": st.column_config.LinkColumn("URL"),
+                        "text": "Link Text",
+                        "type": "Link Type"
+                    },
+                    hide_index=True,
+                    use_container_width=True
+                )
+
+                # Download button for URLs
+                csv = filtered_df.to_csv(index=False)
+                st.download_button(
+                    label="Download URLs as CSV",
+                    data=csv,
+                    file_name=f"urls_{format_table_name(url, 0)}.csv",
+                    mime="text/csv"
+                )
 
     with color_tab:
         if not url:
