@@ -321,7 +321,7 @@ def main():
                                 st.image(
                                     img_data['url'],
                                     caption=f"Alt: {img_data['alt']}\nSize: {img_data['width']}x{img_data['height']}",
-                                    use_column_width=True
+                                    use_container_width=True
                                 )
                             else:
                                 st.info("Base64 encoded image")
